@@ -23,7 +23,7 @@ contract f{
 ```
 此时编译合约会报错，无法找到函数`a()`，需要将`b()`函数改成以下这样：
 ```javascript
-	function b() public returns (uint){
+    function b() public returns (uint){
         return this.a();
     }
 ```

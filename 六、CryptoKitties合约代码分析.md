@@ -8,15 +8,15 @@ CryptoKitties中文名加密猫，一个部署在区块链上的DApp，是代币
 合约中需要了解的前置知识在先前的几篇文章中基本都讲过了，这里再补充一个合约继承的问题，直接看下面这个例子：
 ```javascript
 contract a{
-	Variable_1;
-	Variable_2;
-	function …… internal{}
-	function …… external{}
+    Variable_1;
+    Variable_2;
+    function …… internal{}
+    function …… external{}
 }
 
 contract b is a{
-	Variable_3 private;
-	function …… public {}
+    Variable_3 private;
+    function …… public {}
 }
 contract c is b{
 }
@@ -41,7 +41,7 @@ contract c is b{
 
 通过设定三个管理层角色，三个角色分别对应三个地址，为合约添加了权限控制。
 ```javascript
-	//CEO权限最大，可设置三个角色的地址和开启合约功能
+    //CEO权限最大，可设置三个角色的地址和开启合约功能
     address public ceoAddress;
     //CFO管财政，卖出去的猫收到的以太币最终会转入CFO的地址中
     address public cfoAddress;
@@ -63,10 +63,10 @@ contract c is b{
     
     //三个设置管理层地址的函数，只能由CEO指定
     function setCEO(address _newCEO) external onlyCEO
-	function setCFO(address _newCFO) external onlyCEO
-	function setCOO(address _newCOO) external onlyCEO
+    function setCFO(address _newCFO) external onlyCEO
+    function setCOO(address _newCOO) external onlyCEO
 
-	还有一些paused相关修改器和函数
+    还有一些paused相关修改器和函数
 ```
 paused相关修改器和函数用于冻结和解冻整个合约，这里就不写出来了。
 ### 2.2 KittyBase
@@ -78,7 +78,7 @@ paused相关修改器和函数用于冻结和解冻整个合约，这里就不�
 
 Kitty结构体：
 ```javascript
-	//具体的属性介绍可以查看源代码中的注释
+    //具体的属性介绍可以查看源代码中的注释
     struct Kitty {
         uint256 genes;
         uint64 birthTime;
@@ -112,11 +112,11 @@ Kitty结构体：
 
 状态变量：
 ```javascript
-	//保存每一只猫的数组
-	Kitty[] kitties;
-	//猫ID映射到归属地址
-	mapping (uint256 => address) public kittyIndexToOwner;
-	//某地址拥有猫的数量
+    //保存每一只猫的数组
+    Kitty[] kitties;
+    //猫ID映射到归属地址
+    mapping (uint256 => address) public kittyIndexToOwner;
+    //某地址拥有猫的数量
     mapping (address => uint256) ownershipTokenCount;
     //拍卖授权，和属权拍卖相关
     mapping (uint256 => address) public kittyIndexToApproved;
@@ -128,11 +128,11 @@ Kitty结构体：
 ```
 创建猫和转移猫的操作，两个操作都是`internal`调用，这也是合约的结构之一，`internal`函数完成实际操作，`external`函数检测前置条件并调用`internal`函数完成操作。
 ```javascript
-	function _transfer(address _from, address _to, uint256 _tokenId) internal{
-		将代币从from地址转到to地址名下
-	}
+    function _transfer(address _from, address _to, uint256 _tokenId) internal{
+	将代币从from地址转到to地址名下
+    }
 	
-	function _createKitty(
+    function _createKitty(
         uint256 _matronId,
         uint256 _sireId,
         uint256 _generation,
@@ -153,39 +153,42 @@ Kitty结构体：
 以下是三个`internal`函数
 ```javascript
     function _owns(address _claimant, uint256 _tokenId) internal view returns (bool) {	    
-	    //归属检测
+	//归属检测
         return kittyIndexToOwner[_tokenId] == _claimant;
     }
+    
     function _approvedFor(address _claimant, uint256 _tokenId) internal view returns (bool) {
-	    //授权检测
+	//授权检测
         return kittyIndexToApproved[_tokenId] == _claimant;
     }
+    
     function _approve(uint256 _tokenId, address _approved) internal {
-	    //执行授权操作
+	//执行授权操作
         kittyIndexToApproved[_tokenId] = _approved;
     }
 ```
 以下是两个`public`函数，内外都会用上
 ```javascript
-	function balanceOf(address _owner) public view returns (uint256 count) {
-		//返回某一地址代币数
+    function balanceOf(address _owner) public view returns (uint256 count) {
+	//返回某一地址代币数
         return ownershipTokenCount[_owner];
     }
+    
     function totalSupply() public view returns (uint) {
-	    //返回总猫数
+	//返回总猫数
         return kitties.length - 1;
     }
 ```
 以下是5个`external`函数，用于给其他账户操作或查询合约数据
 ```javascript
-	function transfer(
+    function transfer(
         address _to,
         uint256 _tokenId
     )
         external
         whenNotPaused
     {
-		提供给代币所有者完成代币转移操作
+	提供给代币所有者完成代币转移操作
     }
     
     function approve(
@@ -195,7 +198,7 @@ Kitty结构体：
         external
         whenNotPaused
     {
-	    提供给代币所有者完成代币转移权限授予操作
+	提供给代币所有者完成代币转移权限授予操作
     }
     
     function transferFrom(
@@ -206,8 +209,8 @@ Kitty结构体：
         external
         whenNotPaused
     {
-	    提供给获得授权人
-	    对代币进行属权转移操作
+	提供给获得授权人
+	对代币进行属权转移操作
     }
     
     function ownerOf(uint256 _tokenId)
@@ -215,11 +218,11 @@ Kitty结构体：
         view
         returns (address owner)
     {
-	    根据代币ID查询对应所有者地址
+	根据代币ID查询对应所有者地址
     }
     
     function tokensOfOwner(address _owner) external view returns(uint256[] ownerTokens) {
-	    查询传入地址名下所有的代币ID
+	查询传入地址名下所有的代币ID
     }
 ```
 ### 2.3 KittyBreeding
@@ -240,7 +243,7 @@ Kitty结构体：
     
     GeneScienceInterface public geneScience;
     function setGeneScienceAddress(address _address) external onlyCEO {
-	}
+    }
 ```
 接下来是两个`private`函数，说明都是给本合约的函数调用并返回条件判断结果
 ```javascript
@@ -254,34 +257,34 @@ Kitty结构体：
         view
         returns(bool)
     {
-	    检测两只猫是否符合繁殖规则，规则有以下几条（规则有顺序性）：
-	    1.不是同一只猫
-	    2.一只猫不能是另一只猫的父母
-	    3.两只猫的父母不可有任何重叠
+	检测两只猫是否符合繁殖规则，规则有以下几条（规则有顺序性）：
+	1.不是同一只猫
+	2.一只猫不能是另一只猫的父母
+	3.两只猫的父母不可有任何重叠
     }
 
     function _isReadyToGiveBirth(Kitty _matron) private view returns (bool) {
-		检测是否符合生新猫的条件，有两条：
-		1.sireWithId字段非0
-		2.冷却时间已过
+	检测是否符合生新猫的条件，有两条：
+	1.sireWithId字段非0
+	2.冷却时间已过
     }
 ```
 5个`internal`函数
 ```javascript
     function _isReadyToBreed(Kitty _kit) internal view returns (bool) {
-		检测是否符合交配的条件，有两条：
-		1.sireWithId字段为0
-		2.冷却时间已过
+	检测是否符合交配的条件，有两条：
+	1.sireWithId字段为0
+	2.冷却时间已过
     }
     
     function _isSiringPermitted(uint256 _sireId, uint256 _matronId) internal view returns (bool) {
-	    检测父猫繁殖权是否已经授权给母猫所属地址
-	    同一地址的两只猫不需要授权
+	检测父猫繁殖权是否已经授权给母猫所属地址
+	同一地址的两只猫不需要授权
     }
     
     function _triggerCooldown(Kitty storage _kitten) internal {
-	    计算交配后的冷却时间
-	    每交配成功一次冷却等级+1
+	计算交配后的冷却时间
+	每交配成功一次冷却等级+1
     }
     
     function _canBreedWithViaAuction(uint256 _matronId, uint256 _sireId)
@@ -289,14 +292,14 @@ Kitty结构体：
         view
         returns (bool)
     {
-	    检测拍卖行上的父猫和母猫是否遵循繁衍规则
+	检测拍卖行上的父猫和母猫是否遵循繁衍规则
     }
 
     function _breedWith(uint256 _matronId, uint256 _sireId) internal {
-	    交配操作
-	    母猫siringWithId字段 = 父猫ID
-	    重置父母猫的冷却时间
-	    如果父母猫曾经授权某地址其交配权，则移除这个权利	    
+	交配操作
+	母猫siringWithId字段 = 父猫ID
+	重置父母猫的冷却时间
+	如果父母猫曾经授权某地址其交配权，则移除这个权利	    
     }
 ```
 6个外部调用函数包括`public`。
@@ -307,22 +310,22 @@ Kitty结构体：
         view
         returns (bool)
     {
-	    根据猫ID检测是否可交配
-	    调用了_isReadyToBreed
+	根据猫ID检测是否可交配
+	调用了_isReadyToBreed
     }
     function isPregnant(uint256 _kittyId)
         public
         view
         returns (bool)
     {
-	    根据猫ID检测猫是否怀孕了
+	根据猫ID检测猫是否怀孕了
     }
     function canBreedWith(uint256 _matronId, uint256 _sireId)
         external
         view
         returns(bool)
     {
-	    检测两只猫是否满足交配规则
+	检测两只猫是否满足交配规则
     }
 ```
 后三个对数据进行操作
@@ -331,25 +334,27 @@ Kitty结构体：
         external
         whenNotPaused
     {
-	    将父猫交配权授予_addr这个地址
+	将父猫交配权授予_addr这个地址
     }
-	function breedWithAuto(uint256 _matronId, uint256 _sireId)
+    
+    function breedWithAuto(uint256 _matronId, uint256 _sireId)
         external
         payable
         whenNotPaused
     {
-	    在获得父猫授权后，母猫拥有者地址可以调用这个函数使母猫进入怀孕状态
-	    在这里会检测一系列条件
-	    最后调用_breedWith()完成交配操作
-	}
+	在获得父猫授权后，母猫拥有者地址可以调用这个函数使母猫进入怀孕状态
+	在这里会检测一系列条件
+	最后调用_breedWith()完成交配操作
+    }
+    
     function giveBirth(uint256 _matronId)
         external
         whenNotPaused
         returns(uint256)
     {
-	    母猫怀孕后需要等待重置后的冷却时间到达才可以执行这一步
-	    换句话说，母猫在生育后可以即刻投入到下一次的交配中
-	    这一步由矿工调用，将此交易成功加入到区块链中的矿工可以获得设定好的2finney奖励
+	母猫怀孕后需要等待重置后的冷却时间到达才可以执行这一步
+	换句话说，母猫在生育后可以即刻投入到下一次的交配中
+	这一步由矿工调用，将此交易成功加入到区块链中的矿工可以获得设定好的2finney奖励
     }	
 ```
 ### 2.4 KittyMinting
@@ -359,25 +364,27 @@ Kitty结构体：
 
 首先看合约中的状态变量和常量：
 ```javascript
-	//规定了两种猫的数量
-	//促销猫最多5000只，初代猫最多45000只
+    //规定了两种猫的数量
+    //促销猫最多5000只，初代猫最多45000只
     uint256 public constant PROMO_CREATION_LIMIT = 5000;
     uint256 public constant GEN0_CREATION_LIMIT = 45000;
-	//规定了初代猫起拍价为10 finney，拍卖时间为一天
+    
+    //规定了初代猫起拍价为10 finney，拍卖时间为一天
     uint256 public constant GEN0_STARTING_PRICE = 10 finney;
     uint256 public constant GEN0_AUCTION_DURATION = 1 days;
-	//用于统计已经生成了多少只促销猫和初代猫
+    
+    //用于统计已经生成了多少只促销猫和初代猫
     uint256 public promoCreatedCount;
     uint256 public gen0CreatedCount;
 ```
 接下来是两个生成促销猫和初代猫的函数，由COO控制：
 ```javascript
     function createPromoKitty(uint256 _genes, address _owner) external onlyCOO {
-	    _owner为直接指定的所有者
-	    没有的话会指定为COO地址    
+	_owner为直接指定的所有者
+	没有的话会指定为COO地址    
     }
     function createGen0Auction(uint256 _genes) external onlyCOO {
-	    调用了_approve()将出售权授权给拍卖合约的地址	    
+	调用了_approve()将出售权授权给拍卖合约的地址	    
     }
 ```
 最后还有一个计算下一个出代猫起始价的函数`_computeNextGen0Price()`。
@@ -390,7 +397,7 @@ Kitty结构体：
 
 首先定义了一个`newContractAddress`变量，用于在合约出现重大bug或升级时可以指定新合约地址，进行更新，由CEO进行控制。
 ```javascript
-	address public newContractAddress;
+    address public newContractAddress;
     function setNewAddress(address _v2Address) external onlyCEO whenPaused {
     }
 ```
@@ -508,13 +515,13 @@ Kitty结构体：
         internal
         returns (uint256)
     {
-	    竞价操作
-	    出价大于实时价钱时，竞价成功
-	    合约会抽取 售出价*ownercut/10000 的手续费
+	竞价操作
+	出价大于实时价钱时，竞价成功
+	合约会抽取 售出价*ownercut/10000 的手续费
     }
     function _removeAuction(uint256 _tokenId) internal {
-	    取消拍卖的实际操作
-	    拍卖成功或者卖家主动取消都会调用这里
+	取消拍卖的实际操作
+	拍卖成功或者卖家主动取消都会调用这里
     }
 ```
 合约中有一个`_computeCurrentPrice()`解释了这个“拍卖”实际上是怎样定价的：
@@ -564,19 +571,19 @@ Kitty结构体：
         external
         whenNotPaused
     {
-	    外部调用将自己的代币挂上拍卖
+	外部调用将自己的代币挂上拍卖
     }
     function bid(uint256 _tokenId)
         external
         payable
         whenNotPaused
     {
-	    外部调用进行竞价
+	外部调用进行竞价
     }
     function cancelAuction(uint256 _tokenId)
         external
     {
-	    取消拍卖
+	取消拍卖
     }
 
     function getAuction(uint256 _tokenId)
@@ -590,15 +597,15 @@ Kitty结构体：
         uint256 duration,
         uint256 startedAt
     ) {
-	    查询函数
-	    返回查询拍卖的属性
+	查询函数
+	返回查询拍卖的属性
     }
     function getCurrentPrice(uint256 _tokenId)
         external
         view
         returns (uint256)
     {
-	    查询对应ID的代币当前售价
+	查询对应ID的代币当前售价
     }
 ```
 以及取钱操作，这里的取钱是先将钱取到`KittyCore`合约中，再通过`KittyCore`的`withdraw`函数取出到CFO的地址中。
@@ -624,12 +631,13 @@ Kitty结构体：
 这个合约用于管理两个拍卖合约。
 首先是两个`set`函数设定好拍卖合约的地址：
 ```javascript
-	function setSaleAuctionAddress(address _address) external onlyCEO{
-		设定地址
-	}
-	function setSiringAuctionAddress(address _address) external onlyCEO{
-		设定地址
-	}
+    function setSaleAuctionAddress(address _address) external onlyCEO{
+	设定地址
+    }
+    
+    function setSiringAuctionAddress(address _address) external onlyCEO{
+	设定地址
+    }
 ```
 两个创建新的拍卖的操作：
 ```javascript
@@ -642,7 +650,7 @@ Kitty结构体：
         external
         whenNotPaused
     {
-	    ………………
+	………………
         saleAuction.createAuction(
             _kittyId,
             _startingPrice,
@@ -661,7 +669,7 @@ Kitty结构体：
         external
         whenNotPaused
     {
-	    …………
+	…………
         siringAuction.createAuction(
             _kittyId,
             _startingPrice,

@@ -38,25 +38,27 @@ contract f{
 ```
 会自动生成一个供外部查询`data`的函数。
 ```javascript
-	function data() returns (uint){
-		return data;
-	}
+    function data() returns (uint){
+	return data;
+    }
 ```
 从外部访问`data`时会被当作函数形式，从内部访问时为状态变量的形式，如以下测试合约：
 ```javascript
 contract f{
     uint public data = 10;
 }
+
 contract g is f{
-	function getData() returns (uint){
-		return data;
-	}
+    function getData() returns (uint){
+	return data;
+    }
 }
+
 contract h{
-	function checkFdata() returns (uint){
-		f F = new f();
-		return F.data();
-	}	
+    function checkFdata() returns (uint){
+	f F = new f();
+	return F.data();
+    }	
 }
 ```
 `g`是继承了`f`的合约，访问`data`时为内部访问，`h`合约访问`data`时为外部访问。
@@ -64,27 +66,27 @@ contract h{
 ```javascript
 contract complex {
     struct Data { 
-	    uint a; 
-	    bool b; 
-	}
+	uint a; 
+	bool b; 
+    }
     mapping(uint => mapping(bool => Data[])) public data;
 }
 ```
 会自动生成以下函数供外部访问data中的数据：
 ```javascript
-	function data(
-		uint arg1, 
-		bool arg2, 
-		uint arg3
-	) returns (uint a, bool b){
-		a = data[arg1][arg2][arg3].a;
-		b = data[arg1][arg2][arg3].b;
-	}
+    function data(
+	uint arg1, 
+	bool arg2, 
+	uint arg3
+    ) returns (uint a, bool b){
+	a = data[arg1][arg2][arg3].a;
+	b = data[arg1][arg2][arg3].b;
+    }
 ```
 ### 1.3 internal
 `internal`修饰的函数是内部函数，这些函数的功能只能在内部进行访问，此合约的所有子合约也可以访问。约定俗成地，内部函数名前会加上`_`。使用上，一般会在内部函数中修改合约中的数据，并在外部函数或其他内部函数中被调用，如下为crytokitties合约中的部分代码：
 ```javascript
-	//_transfer用于完成kitty属权转移操作
+    //_transfer用于完成kitty属权转移操作
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
         ownershipTokenCount[_to]++;
         kittyIndexToOwner[_tokenId] = _to;
@@ -134,7 +136,7 @@ private修饰的状态变量或函数只有当前合约可见，外部及衍生�
         return kitties[_kittyId].siringWithId != 0;
     }
 ```
-###2.2 pure
+### 2.2 pure
 `pure`修饰的函数更为严格，不读取也不修改状态。修改状态的操作在`view`部分已经讲到，以下五种操作是涉及读取状态的操作：
 1. 读状态变量
 2. 访问`address(this).balance`或`<address>.balance`
@@ -155,11 +157,11 @@ private修饰的状态变量或函数只有当前合约可见，外部及衍生�
         returns (uint256)
     {
         if (_secondsPassed >= _duration) {
-	        return _endingPrice;
-	    } else {
-		    int256 totalPriceChange = int256(_endingPrice) - int256(_startingPrice);
-		    int256 currentPriceChange = totalPriceChange * int256(_secondsPassed) / int256(_duration);
-	        int256 currentPrice = int256(_startingPrice) + currentPriceChange;		
+	    return _endingPrice;
+	} else {
+	    int256 totalPriceChange = int256(_endingPrice) - int256(_startingPrice);
+	    int256 currentPriceChange = totalPriceChange * int256(_secondsPassed) / int256(_duration);
+	    int256 currentPrice = int256(_startingPrice) + currentPriceChange;		
             return uint256(currentPrice);
         }
     }
@@ -169,7 +171,7 @@ private修饰的状态变量或函数只有当前合约可见，外部及衍生�
 > 注：还有一个关键字constant，在v0.4.17版本后，constant拆成了view和pure，view的作用和constant完全一致，因此在这里不特别解释。
 
 ***
-##3. payable
+## 3. payable
 `payable`和`pure`、`view`关键字属于同一位置的关键字，三者在一个函数声明都只能出现其中一个。
 
 `payable`修饰函数为可支付函数。如果一个函数需要进行货币操作，必须要带上`payable`关键字，否则调用函数并传入货币时会报错。传入货币后，货币会加入到传入地址的`balance`中。
@@ -209,8 +211,8 @@ contract Sender{
 ```
 另外，在上一篇文章中讲到了`send`和`transfer`会调用合约的`fallback`函数，没有实现`fallback`函数的合约会把`send`和`transfer`发送的以太币返还，如果`fallback`函数没有加上`payable`关键字也会导致以太币发送出错。因此如果希望合约正常接收以太币，可以像以下这个例子实现`fallback`函数：
 ```javascript
-	function() payable{
-	}
+    function() payable{
+    }
 ```
 可以设置成正常接收以太币，当然也可以设置成拒绝接收以太币。`crytokitties`合约中就设置了以下这样的`fallback`函数来限定只有拍卖合约可以给本合约发送以太币，来防止玩家误操作：
 ```javascript
